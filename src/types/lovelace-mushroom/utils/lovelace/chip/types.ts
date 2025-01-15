@@ -130,7 +130,7 @@ export type WeatherChipConfig = {
  * @property {string | string[]} [entity_id]
  */
 export type TemplateChipConfig = {
-  type: "template";
+  type: "template" | "entity";
   entity?: string;
   hold_action?: ActionConfig;
   tap_action?: ActionConfig;

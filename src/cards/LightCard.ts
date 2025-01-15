@@ -30,6 +30,7 @@ class LightCard extends AbstractCard {
     show_color_control: true,
     show_color_temp_control: true,
     use_light_color: true,
+    collapsible_controls: true,
     double_tap_action: {
       action: "call-service",
       service: "light.turn_on",

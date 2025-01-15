@@ -1,7 +1,7 @@
-import {cards} from "../types/strategy/cards";
-import {StackCardConfig} from "../types/homeassistant/lovelace/cards/types";
-import {LovelaceCardConfig} from "../types/homeassistant/data/lovelace";
-import {HassServiceTarget} from "home-assistant-js-websocket";
+import { cards } from "../types/strategy/cards";
+import { StackCardConfig } from "../types/homeassistant/lovelace/cards/types";
+import { LovelaceCardConfig } from "../types/homeassistant/data/lovelace";
+import { HassServiceTarget } from "home-assistant-js-websocket";
 
 /**
  * Controller Card class.
@@ -26,10 +26,12 @@ class ControllerCard {
   readonly #defaultConfig: cards.ControllerCardConfig = {
     type: "mushroom-title-card",
     showControls: true,
+    showSlider: false,
     iconOn: "mdi:power-on",
     iconOff: "mdi:power-off",
     onService: "none",
     offService: "none",
+    slider: "none",
   };
 
   /**
@@ -64,6 +66,9 @@ class ControllerCard {
       cards.push({
         type: "horizontal-stack",
         cards: [
+          // {
+          //   type: "custom:mushroom-number-card",
+          // },
           {
             type: "custom:mushroom-template-card",
             icon: this.#defaultConfig.iconOff,
@@ -99,4 +104,4 @@ class ControllerCard {
   }
 }
 
-export {ControllerCard};
+export { ControllerCard };

@@ -1,13 +1,13 @@
-import {Helper} from "../Helper";
-import {AbstractView} from "./AbstractView";
-import {views} from "../types/strategy/views";
-import {LovelaceChipConfig} from "../types/lovelace-mushroom/utils/lovelace/chip/types";
-import {ChipsCardConfig} from "../types/lovelace-mushroom/cards/chips-card";
-import {AreaCardConfig, StackCardConfig} from "../types/homeassistant/lovelace/cards/types";
-import {TemplateCardConfig} from "../types/lovelace-mushroom/cards/template-card-config";
-import {ActionConfig} from "../types/homeassistant/data/lovelace";
-import {TitleCardConfig} from "../types/lovelace-mushroom/cards/title-card-config";
-import {PersonCardConfig} from "../types/lovelace-mushroom/cards/person-card-config";
+import { Helper } from "../Helper";
+import { AbstractView } from "./AbstractView";
+import { views } from "../types/strategy/views";
+import { LovelaceChipConfig } from "../types/lovelace-mushroom/utils/lovelace/chip/types";
+import { ChipsCardConfig } from "../types/lovelace-mushroom/cards/chips-card";
+import { AreaCardConfig, StackCardConfig } from "../types/homeassistant/lovelace/cards/types";
+import { TemplateCardConfig } from "../types/lovelace-mushroom/cards/template-card-config";
+import { ActionConfig } from "../types/homeassistant/data/lovelace";
+import { TitleCardConfig } from "../types/lovelace-mushroom/cards/title-card-config";
+import { PersonCardConfig } from "../types/lovelace-mushroom/cards/person-card-config";
 
 
 // noinspection JSUnusedGlobalSymbols Class is dynamically imported.
@@ -165,7 +165,7 @@ class HomeView extends AbstractView {
           chipModule = await import((`../chips/${className}`));
           const chip = new chipModule[className]();
 
-          chip.setTapActionTarget({area_id: areaIds});
+          chip.setTapActionTarget({ area_id: areaIds });
           chips.push(chip.getChip());
         } catch (e) {
           Helper.logError(`An error occurred while creating the ${chipType} chip!`, e);
@@ -236,12 +236,16 @@ class HomeView extends AbstractView {
 
     for (const [i, area] of Helper.areas.entries()) {
       type ModuleType = typeof import("../cards/AreaCard");
+      const temps = Helper.getStateEntities(area, "sensor").filter((e) => { return e?.attributes.device_class == "temperature" && e.state != "unavailable" && !["range","oven","stove","cook"].some(str => e.entity_id.includes(str))});
+      const lights = Helper.getDeviceEntities(area, "light");
+      const doors = Helper.getStateEntities(area, "binary_sensor").filter((e) => { return (e?.attributes.device_class == "door" || e?.attributes.device_class == "garage_door" || e?.attributes.device_class == "opening" ) && e.state != "unavailable"});
+      const occupancy = Helper.getStateEntities(area, "binary_sensor").filter((e) => { return (e?.attributes.device_class == "occupancy") && e.state != "unavailable"});
 
       let module: ModuleType;
       let moduleName =
-            Helper.strategyOptions.areas[area.area_id]?.type ??
-            Helper.strategyOptions.areas["_"]?.type ??
-            "default";
+        Helper.strategyOptions.areas[area.area_id]?.type ??
+        Helper.strategyOptions.areas["_"]?.type ??
+        "default";
 
       // Load module by type in strategy options.
       try {
@@ -261,8 +265,15 @@ class HomeView extends AbstractView {
           ...Helper.strategyOptions.areas["_"],
           ...Helper.strategyOptions.areas[area.area_id],
         };
+        let secondary = {
+          temps: temps
+        }
+        let chips = {
+          light: lights,
+          openings: doors
+        }
 
-        areaCards.push(new module.AreaCard(area, options).getCard());
+        areaCards.push(new module.AreaCard(area, options, secondary, occupancy, chips).getCard());
       }
 
       // Horizontally group every two area cards if all cards are created.
@@ -280,4 +291,4 @@ class HomeView extends AbstractView {
   }
 }
 
-export {HomeView};
+export { HomeView };

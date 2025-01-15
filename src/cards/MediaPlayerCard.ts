@@ -24,9 +24,12 @@ class MediaPlayerCard extends AbstractCard {
     use_media_info: true,
     media_controls: [
       "on_off",
+      "previous",
+      "next",
       "play_pause_stop",
     ],
     show_volume_level: true,
+    collapsible_controls: true,
     volume_controls: [
       "volume_mute",
       "volume_set",

@@ -11,6 +11,7 @@ import {CoverCardConfig} from "../lovelace-mushroom/cards/cover-card-config";
 import {FanCardConfig} from "../lovelace-mushroom/cards/fan-card-config";
 import {AreaCardConfig} from "../homeassistant/lovelace/cards/types";
 import {LightCardConfig} from "../lovelace-mushroom/cards/light-card-config";
+import {ChipsCardConfig} from "../lovelace-mushroom/cards/chips-card";
 import {LockCardConfig} from "../lovelace-mushroom/cards/lock-card-config";
 import {MediaPlayerCardConfig} from "../lovelace-mushroom/cards/media-player-card-config";
 import {NumberCardConfig} from "../lovelace-mushroom/cards/number-card-config";
@@ -52,6 +53,7 @@ export namespace cards {
   export type EntityCardOptions = Omit<EntityCardConfig, "type">;
   export type FanCardOptions = Omit<FanCardConfig, "type">;
   export type LightCardOptions = Omit<LightCardConfig, "type">;
+  export type SceneCardOptions = Omit<ChipsCardConfig, "type">;
   export type LockCardOptions = Omit<LockCardConfig, "type">;
   export type MediaPlayerCardOptions = Omit<MediaPlayerCardConfig, "type">;
   export type NumberCardOptions = Omit<NumberCardConfig, "type">;

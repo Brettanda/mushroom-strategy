@@ -29,6 +29,9 @@ class ClimateCard extends AbstractCard {
       "fan_only",
     ],
     show_temperature_control: true,
+    tap_action: {
+      action: "more-info"
+    }
   };
 
   /**

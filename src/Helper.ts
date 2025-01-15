@@ -155,9 +155,9 @@ class Helper {
 
       // noinspection ES6MissingAwait False positive? https://youtrack.jetbrains.com/issue/WEB-63746
       [Helper.#entities, Helper.#devices, Helper.#areas] = await Promise.all([
-        info.hass.callWS({type: "config/entity_registry/list"}) as Promise<EntityRegistryEntry[]>,
-        info.hass.callWS({type: "config/device_registry/list"}) as Promise<DeviceRegistryEntry[]>,
-        info.hass.callWS({type: "config/area_registry/list"}) as Promise<AreaRegistryEntry[]>,
+        info.hass.callWS({ type: "config/entity_registry/list" }) as Promise<EntityRegistryEntry[]>,
+        info.hass.callWS({ type: "config/device_registry/list" }) as Promise<DeviceRegistryEntry[]>,
+        info.hass.callWS({ type: "config/area_registry/list" }) as Promise<AreaRegistryEntry[]>,
       ]);
     } catch (e) {
       Helper.logError("An error occurred while querying Home assistant's registries!", e);
@@ -179,7 +179,7 @@ class Helper {
 
     // Merge custom areas of the strategy options into strategy areas.
     this.#areas = Helper.areas.map(area => {
-      return {...area, ...this.#strategyOptions.areas?.[area.area_id]};
+      return { ...area, ...this.#strategyOptions.areas?.[area.area_id] };
     });
 
     // Sort strategy areas by order first and then by name.
@@ -227,7 +227,7 @@ class Helper {
    * @return {string} The template string.
    * @static
    */
-  static getCountTemplate(domain: string, operator: string, value: string): string {
+  static getCountTemplate(domain: string, operator: string, value: string, area?: generic.StrategyArea): string {
     // noinspection JSMismatchedCollectionQueryUpdate (False positive per 17-04-2023)
     /**
      * Array of entity state-entries, filtered by domain.
@@ -246,8 +246,7 @@ class Helper {
       console.warn("Helper class should be initialized before calling this method!");
     }
 
-    // Get the ID of the devices which are linked to the given area.
-    for (const area of this.#areas) {
+    if (area != undefined) {
       const areaDeviceIds = this.#devices.filter((device) => {
         return device.area_id === area.area_id;
       }).map((device) => {
@@ -257,13 +256,33 @@ class Helper {
       // Get the entities of which all conditions of the callback function are met. @see areaFilterCallback.
       const newStates = this.#entities.filter(
         this.#areaFilterCallback, {
+        area: area,
+        domain: domain,
+        areaDeviceIds: areaDeviceIds,
+      })
+        .map((entity) => `states['${entity.entity_id}']`);
+
+      states.push(...newStates);
+    } else {
+      // Get the ID of the devices which are linked to the given area.
+      for (const area of this.#areas) {
+        const areaDeviceIds = this.#devices.filter((device) => {
+          return device.area_id === area.area_id;
+        }).map((device) => {
+          return device.id;
+        });
+
+        // Get the entities of which all conditions of the callback function are met. @see areaFilterCallback.
+        const newStates = this.#entities.filter(
+          this.#areaFilterCallback, {
           area: area,
           domain: domain,
           areaDeviceIds: areaDeviceIds,
         })
-        .map((entity) => `states['${entity.entity_id}']`);
+          .map((entity) => `states['${entity.entity_id}']`);
 
-      states.push(...newStates);
+        states.push(...newStates);
+      }
     }
 
     return (
@@ -308,10 +327,10 @@ class Helper {
     // Return the entities of which all conditions of the callback function are met. @see areaFilterCallback.
     return this.#entities.filter(
       this.#areaFilterCallback, {
-        area: area,
-        domain: domain,
-        areaDeviceIds: areaDeviceIds,
-      })
+      area: area,
+      domain: domain,
+      areaDeviceIds: areaDeviceIds,
+    })
       .sort((a, b) => {
         return (a.original_name ?? "undefined").localeCompare(b.original_name ?? "undefined");
       });
@@ -488,4 +507,4 @@ class Helper {
   }
 }
 
-export {Helper};
+export { Helper };

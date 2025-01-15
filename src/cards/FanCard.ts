@@ -22,8 +22,8 @@ class FanCard extends AbstractCard {
   #defaultConfig: FanCardConfig = {
     type: "custom:mushroom-fan-card",
     icon: undefined,
-    show_percentage_control: true,
-    show_oscillate_control: true,
+    show_percentage_control: false,
+    show_oscillate_control: false,
     icon_animation: true,
   };
 

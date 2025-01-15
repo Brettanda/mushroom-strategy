@@ -1,18 +1,17 @@
-import {SensorCard} from "./SensorCard";
+import {AbstractCard} from "./AbstractCard";
 import {cards} from "../types/strategy/cards";
 import {EntityRegistryEntry} from "../types/homeassistant/data/entity_registry";
 import {EntityCardConfig} from "../types/lovelace-mushroom/cards/entity-card-config";
 
-// noinspection JSUnusedGlobalSymbols Class is dynamically imported.
 /**
- * Sensor Card Class
+ * Image Card Class
  *
- * Used to create a card for controlling an entity of the binary_sensor domain.
+ * Used to create a card an entity of any domain.
  *
  * @class
- * @extends SensorCard
+ * @extends AbstractCard
  */
-class BinarySensorCard extends SensorCard {
+class ImageCard extends AbstractCard {
   /**
    * Default configuration of the card.
    *
@@ -20,9 +19,8 @@ class BinarySensorCard extends SensorCard {
    * @private
    */
   #defaultConfig: EntityCardConfig = {
-    type: "custom:mushroom-entity-card",
-    icon: "mdi:power-cycle",
-    icon_color: "green",
+    type: "picture",
+    // icon_color: "blue-grey",
   };
 
   /**
@@ -35,11 +33,8 @@ class BinarySensorCard extends SensorCard {
   constructor(entity: EntityRegistryEntry, options: cards.EntityCardOptions = {}) {
     super(entity);
 
-    console.log(entity);
-    this.#defaultConfig.icon = entity.icon || this.#defaultConfig.icon;
-
     this.config = Object.assign(this.config, this.#defaultConfig, options);
   }
 }
 
-export {BinarySensorCard};
+export {ImageCard};

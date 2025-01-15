@@ -1,11 +1,12 @@
-import {Helper} from "./Helper";
-import {SensorCard} from "./cards/SensorCard";
-import {ControllerCard} from "./cards/ControllerCard";
-import {generic} from "./types/strategy/generic";
-import {LovelaceCardConfig, LovelaceConfig, LovelaceViewConfig} from "./types/homeassistant/data/lovelace";
-import {StackCardConfig} from "./types/homeassistant/lovelace/cards/types";
-import {EntityCardConfig} from "./types/lovelace-mushroom/cards/entity-card-config";
-import {HassServiceTarget} from "home-assistant-js-websocket";
+import { Helper } from "./Helper";
+import { SensorCard } from "./cards/SensorCard";
+import { ControllerCard } from "./cards/ControllerCard";
+import { generic } from "./types/strategy/generic";
+import { EntityRegistryEntry } from "./types/homeassistant/data/entity_registry";
+import { LovelaceCardConfig, LovelaceConfig, LovelaceViewConfig } from "./types/homeassistant/data/lovelace";
+import { StackCardConfig } from "./types/homeassistant/lovelace/cards/types";
+import { EntityCardConfig } from "./types/lovelace-mushroom/cards/entity-card-config";
+import { HassServiceTarget } from "home-assistant-js-websocket";
 import StrategyArea = generic.StrategyArea;
 
 /**
@@ -21,7 +22,7 @@ import StrategyArea = generic.StrategyArea;
  * <br>
  * Check the [Repository]{@link https://github.com/AalianKhan/mushroom-strategy} for more information.
  */
-class MushroomStrategy extends HTMLTemplateElement {
+class BrettsStrategy extends HTMLTemplateElement {
   /**
    * Generate a dashboard.
    *
@@ -61,7 +62,7 @@ class MushroomStrategy extends HTMLTemplateElement {
           path: area.area_id ?? area.name,
           subview: true,
           strategy: {
-            type: "custom:mushroom-strategy",
+            type: "custom:bretts-strategy",
             options: {
               area,
             },
@@ -91,6 +92,7 @@ class MushroomStrategy extends HTMLTemplateElement {
    */
   static async generateView(info: generic.ViewInfo): Promise<LovelaceViewConfig> {
     const exposedDomainIds = Helper.getExposedDomainIds();
+    exposedDomainIds.push("scene");
     const area = info.view.strategy?.options?.area ?? {} as StrategyArea;
     const viewCards: LovelaceCardConfig[] = [...(area.extra_cards ?? [])];
 
@@ -111,11 +113,11 @@ class MushroomStrategy extends HTMLTemplateElement {
 
       try {
         domainCards = await import(`./cards/${className}`).then(cardModule => {
-          let domainCards = [];
+          let domainCards: any[] = [];
           const entities = Helper.getDeviceEntities(area, domain);
           let configEntityHidden =
-                Helper.strategyOptions.domains[domain ?? "_"].hide_config_entities
-                || Helper.strategyOptions.domains["_"].hide_config_entities;
+            Helper.strategyOptions.domains[domain ?? "_"].hide_config_entities
+            || Helper.strategyOptions.domains["_"].hide_config_entities;
 
           // Set the target for controller cards to entities without an area.
           if (area.area_id === "undisclosed") {
@@ -123,7 +125,6 @@ class MushroomStrategy extends HTMLTemplateElement {
               entity_id: entities.map(entity => entity.entity_id),
             }
           }
-
           if (entities.length) {
             // Create a Controller card for the current domain.
             const titleCard = new ControllerCard(
@@ -136,31 +137,105 @@ class MushroomStrategy extends HTMLTemplateElement {
               const sensorStates = Helper.getStateEntities(area, "sensor");
               const sensorCards: EntityCardConfig[] = [];
 
+              let devices: { [key: string]: EntityRegistryEntry[] } = {};
               for (const sensor of entities) {
-                // Find the state of the current sensor.
-                const sensorState = sensorStates.find(state => state.entity_id === sensor.entity_id);
-                let cardOptions = Helper.strategyOptions.card_options?.[sensor.entity_id];
-                let deviceOptions = Helper.strategyOptions.card_options?.[sensor.device_id ?? "null"];
-
-                if (!cardOptions?.hidden && !deviceOptions?.hidden) {
-                  if (sensorState?.attributes.unit_of_measurement) {
-                    cardOptions = {
-                      ...{
-                        type: "custom:mini-graph-card",
-                        entities: [sensor.entity_id],
-                      },
-                      ...cardOptions,
-                    };
+                if (sensor.device_id !== null) {
+                  if (devices.hasOwnProperty(sensor.device_id)) {
+                    devices[sensor.device_id].push(sensor);
+                  } else {
+                    devices[sensor.device_id] = [sensor];
                   }
-
-                  sensorCards.push(new SensorCard(sensor, cardOptions).getCard());
                 }
               }
+              console.log(devices);
+              Object.keys(devices).forEach(key => {
+                const sensorState = sensorStates.find(state => state.entity_id === devices[key][0].entity_id);
+                let cardOptions = Helper.strategyOptions.card_options?.[devices[key][0].entity_id];
+                let deviceOptions = Helper.strategyOptions.card_options?.[key];
+
+                if (!deviceOptions?.hidden) {
+                  const entity_ids = [];
+                  for (const sensor of entities) {
+                    if (sensor.device_id == key) {
+                      const sensorState = sensorStates.find(state => state.entity_id === sensor.entity_id);
+                      if (sensorState?.attributes.unit_of_measurement) {
+                        entity_ids.push(sensor.entity_id)
+                      } else {
+                        sensorCards.push(new SensorCard(sensor, cardOptions).getCard());
+                      }
+                    }
+                  }
+                  if (!cardOptions?.hidden && !deviceOptions?.hidden) {
+                    if (sensorState?.attributes.unit_of_measurement) {
+                      cardOptions = {
+                        ...{
+                          type: "custom:mini-graph-card",
+                          entities: entity_ids,
+                        },
+                        ...cardOptions,
+                      };
+                      sensorCards.push(new SensorCard(devices[key][0], cardOptions).getCard());
+                    }
+
+                  }
+                }
+              })
+
+              // for (const sensor of entities) {
+              //   // Find the state of the current sensor.
+              //   const sensorState = sensorStates.find(state => state.entity_id === sensor.entity_id);
+              //   let cardOptions = Helper.strategyOptions.card_options?.[sensor.entity_id];
+              //   let deviceOptions = Helper.strategyOptions.card_options?.[sensor.device_id ?? "null"];
+
+              //   if (!cardOptions?.hidden && !deviceOptions?.hidden) {
+              //     if (sensorState?.attributes.unit_of_measurement) {
+              //       cardOptions = {
+              //         ...{
+              //           type: "custom:mini-graph-card",
+              //           entities: [sensor.entity_id],
+              //         },
+              //         ...cardOptions,
+              //       };
+              //     }
+
+              //     sensorCards.push(new SensorCard(sensor, cardOptions).getCard());
+              //   }
+              // }
 
               if (sensorCards.length) {
                 domainCards.push({
                   type: "vertical-stack",
                   cards: sensorCards,
+                });
+
+                domainCards.unshift(titleCard);
+              }
+
+              return domainCards;
+            }
+
+            if (domain === "scene") {
+              const sceneChips = [];
+              for (const scene of entities) {
+                sceneChips.push({
+                  type: "entity",
+                  entity: scene.entity_id,
+                  content_info: "name",
+                  tap_action: {
+                    action: "call-service",
+                    service: "scene.turn_on",
+                    target: {
+                      entity_id: scene.entity_id
+                    }
+                  }
+                })
+              }
+              // sceneChips.push(new SceneCard(entities[0], Helper.strategyOptions.domains[domain]), entities);
+
+              if (sceneChips.length) {
+                domainCards.push({
+                  type: "custom:mushroom-chips-card",
+                  chips: sceneChips,
                 });
 
                 domainCards.unshift(titleCard);
@@ -290,10 +365,10 @@ class MushroomStrategy extends HTMLTemplateElement {
   }
 }
 
-customElements.define("ll-strategy-mushroom-strategy", MushroomStrategy);
+customElements.define("ll-strategy-bretts-strategy", BrettsStrategy);
 
 const version = "v2.2.0";
 console.info(
-  "%c Mushroom Strategy %c ".concat(version, " "),
+  "%c Bretts Strategy %c ".concat(version, " "),
   "color: white; background: coral; font-weight: 700;", "color: coral; background: white; font-weight: 700;"
 );
