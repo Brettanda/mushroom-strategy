@@ -31,6 +31,7 @@ class HomeView extends AbstractView {
     icon: "mdi:home-assistant",
     path: "home",
     subview: false,
+    max_columns: 4,
   };
 
   /**
@@ -106,8 +107,11 @@ class HomeView extends AbstractView {
 
       // Add area cards.
       homeViewCards.push({
-        type: "vertical-stack",
+        type: "grid",
         cards: areaCards,
+        columns: 2,
+        square: false,
+        title: "Areas"
       } as StackCardConfig);
 
       // Add custom cards.
@@ -277,15 +281,16 @@ class HomeView extends AbstractView {
       }
 
       // Horizontally group every two area cards if all cards are created.
-      if (i === Helper.areas.length - 1) {
-        for (let i = 0; i < areaCards.length; i += 2) {
-          groupedCards.push({
-            type: "horizontal-stack",
-            cards: areaCards.slice(i, i + 2),
-          } as StackCardConfig);
-        }
-      }
+      // if (i === Helper.areas.length - 1) {
+        // for (let i = 0; i < areaCards.length; i += 2) {
+          // groupedCards.push({
+          //   type: "horizontal-stack",
+          //   cards: areaCards.slice(i, i + 2),
+          // } as StackCardConfig);
+      //   }
+      // }
     }
+          groupedCards.push(...areaCards);
 
     return groupedCards;
   }

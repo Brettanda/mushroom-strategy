@@ -22,17 +22,26 @@ class AreaCard extends AbstractCard {
    * @private
    */
   #defaultConfig: TemplateCardConfig = {
-    type: "custom:mushroom-template-card",
-    primary: undefined,
-    icon: "mdi:floor-plan",
-    icon_color: "blue",
-    tap_action: {
-      action: "navigate",
-      navigation_path: "",
-    },
-    hold_action: {
-      action: "none",
-    },
+    // type: "custom:stack-in-card",
+    // cards: [{
+      type: "custom:mushroom-template-card",
+      primary: undefined,
+      secondary: "",
+      icon: "mdi:texture-box",
+      icon_color: "blue",
+      tap_action: {
+        action: "navigate",
+        navigation_path: "",
+      },
+      hold_action: {
+        action: "none",
+      },
+    // }
+    //   , {
+    //   type: "custom:mushroom-chips-card",
+    //   chips: [],
+    //   alignment: "end"
+    // }]
   };
 
   /**
@@ -52,15 +61,19 @@ class AreaCard extends AbstractCard {
     }
 
     // Initialize the default configuration.
+    // this.#defaultConfig.cards[0].primary = area.name;
     this.#defaultConfig.primary = area.name;
-
+    // this.#defaultConfig.cards[0].icon = area?.icon ?? "mdi:texture-box";
     this.#defaultConfig.icon = area?.icon ?? "mdi:texture-box";
+    // if (this.#defaultConfig.cards[0].tap_action && ("navigation_path" in this.#defaultConfig.cards[0].tap_action)) {
     if (this.#defaultConfig.tap_action && ("navigation_path" in this.#defaultConfig.tap_action)) {
+      // this.#defaultConfig.cards[0].tap_action.navigation_path = area.area_id;
       this.#defaultConfig.tap_action.navigation_path = area.area_id;
     }
-      
+
     if (secondary.temps.length) {
       // this.#defaultConfig.cards[0].secondary = `${secondary.temps[0].state} ${secondary.temps[0].attributes.unit_of_measurement}`;
+      // this.#defaultConfig.cards[0].secondary = `{{ states('${secondary.temps[0].entity_id}') }} {{ state_attr('${secondary.temps[0].entity_id}','unit_of_measurement') }}`;
       this.#defaultConfig.secondary = `{{ states('${secondary.temps[0].entity_id}') }} {{ state_attr('${secondary.temps[0].entity_id}','unit_of_measurement') }}`;
     }
 
@@ -126,11 +139,6 @@ class AreaCard extends AbstractCard {
     //     // icon: `mdi:door`
     //   })
     // }
-
-    // Overwrite the default icon to the user-defined icon in hass.
-    if (area.icon) {
-        this.#defaultConfig.icon = area.icon;
-    }
 
     this.config = Object.assign(this.config, this.#defaultConfig, options);
   }

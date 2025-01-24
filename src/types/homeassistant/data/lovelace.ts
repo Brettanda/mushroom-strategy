@@ -24,6 +24,8 @@ export interface LovelaceViewConfig {
   strategy?: LovelaceStrategyConfig;
   badges?: Array<string | LovelaceBadgeConfig>;
   cards?: LovelaceCardConfig[];
+  sections?: LovelaceCardConfig[],
+  max_columns?: number,
   path?: string;
   icon?: string;
   theme?: string;

@@ -238,7 +238,7 @@ class BrettsStrategy extends HTMLTemplateElement {
                   chips: sceneChips,
                 });
 
-                domainCards.unshift(titleCard);
+                // domainCards.unshift(titleCard);
               }
 
               return domainCards;
@@ -359,7 +359,8 @@ class BrettsStrategy extends HTMLTemplateElement {
     }
 
     // Return cards.
-    return {
+    return { 
+      // type: "sections",
       cards: viewCards,
     };
   }
