@@ -1,6 +1,7 @@
 import { Helper } from "./Helper";
 import { SensorCard } from "./cards/SensorCard";
 import { ControllerCard } from "./cards/ControllerCard";
+import { SceneCard } from "./cards/SceneCard";
 import { generic } from "./types/strategy/generic";
 import { EntityRegistryEntry } from "./types/homeassistant/data/entity_registry";
 import { LovelaceCardConfig, LovelaceConfig, LovelaceViewConfig } from "./types/homeassistant/data/lovelace";
@@ -230,7 +231,7 @@ class BrettsStrategy extends HTMLTemplateElement {
                   }
                 })
               }
-              // sceneChips.push(new SceneCard(entities[0], Helper.strategyOptions.domains[domain]), entities);
+              sceneChips.push(new SceneCard(entities[0], Helper.strategyOptions.domains[domain]), entities);
 
               if (sceneChips.length) {
                 domainCards.push({
@@ -238,7 +239,7 @@ class BrettsStrategy extends HTMLTemplateElement {
                   chips: sceneChips,
                 });
 
-                // domainCards.unshift(titleCard);
+                domainCards.unshift(titleCard);
               }
 
               return domainCards;

@@ -28,6 +28,10 @@ export const getConfigurationDefaults = (localize: Function): StrategyDefaults =
         showControls: false,
         hidden: false,
       },
+      scene: {
+        title: "Scenes",
+        showControls: false,
+      },
       light: {
         title: localize("light.lights"),
         showControls: true,

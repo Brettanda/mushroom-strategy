@@ -111,7 +111,7 @@ class HomeView extends AbstractView {
         cards: areaCards,
         columns: 2,
         square: false,
-        title: "Areas"
+        title: Helper.customLocalize("generic.areas")
       } as StackCardConfig);
 
       // Add custom cards.
@@ -230,13 +230,13 @@ class HomeView extends AbstractView {
 
     let areaCards: (TemplateCardConfig | AreaCardConfig)[] = [];
 
-    if (!Helper.strategyOptions.home_view.hidden.includes("areasTitle")) {
-      groupedCards.push({
-          type: "custom:mushroom-title-card",
-          title: Helper.customLocalize("generic.areas"),
-        },
-      );
-    }
+    // if (!Helper.strategyOptions.home_view.hidden.includes("areasTitle")) {
+    //   groupedCards.push({
+    //       type: "custom:mushroom-title-card",
+    //       title: Helper.customLocalize("generic.areas"),
+    //     },
+    //   );
+    // }
 
     for (const [i, area] of Helper.areas.entries()) {
       type ModuleType = typeof import("../cards/AreaCard");
